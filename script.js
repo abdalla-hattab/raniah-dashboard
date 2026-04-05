@@ -388,6 +388,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     doneBtn.classList.toggle('active');
                     localStorage.setItem(doneKey, isCurrentlyDone);
                     updateTabBadge(currentSheetName);
+                    
+                    // Fetch the live updated title in case it was just edited
+                    const activeTitle = card.querySelector('.editable-title').getAttribute('data-original-title') || product.title;
+
+                    // Immediately dispatch to Google Sheet to color the row
+                    const params = new URLSearchParams();
+                    params.append('sheetName', currentSheetName);
+                    params.append('title', activeTitle);
+                    params.append('markDone', isCurrentlyDone.toString());
+
+                    fetch(SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString()
+                    }).catch(err => console.error("Could not sync done status", err));
                 });
             }
 
