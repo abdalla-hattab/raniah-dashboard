@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- HARDCODED CREDENTIALS ---
     const GOOGLE_SHEET_ID = "1TfHwy5JcQNMVLzPkkIRQcl2Q_M40ctdQynB5y2yh30Q";
-    const SYNC_URL = "https://script.google.com/macros/s/AKfycbyd1ZaoZogSo8mN8PKasZNr3guM58_mT6fjNWVJ3PlTQ4Hkpau6rBPu6tirMmnAUAkb/exec";
+    const SYNC_URL = "https://script.google.com/macros/s/AKfycbxZidSr37rM-p1-LEAM2Y15LNRqNZqY_YZ2BkPqhTCoMAC0DaRblG1hx8avyQPkfgX5/exec";
 
     // Mapped Headers
     const titleHeaders = ['product name', 'title', 'اسم المنتج', 'name', 'المنتج'];
