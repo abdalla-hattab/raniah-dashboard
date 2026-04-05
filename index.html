@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة وصف رانيا لجميع المتاجر</title>
+    <meta name="description" content="عرض أوصاف المنتجات وتعديلها مباشرة من Google Sheets.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Boxicons for icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Excel library SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Almarai', sans-serif;
+        }
+        header {
+            padding: 2rem 2.5rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            font-family: 'Almarai', sans-serif;
+            margin: 0;
+            font-size: 2rem;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+        .pulse {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .sheet-link-btn {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .sheet-link-btn:hover {
+            background: rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="app-container">
+        <header class="glass-panel">
+            <h1><i class='bx bx-data'></i> لوحة وصف رانيا لجميع المتاجر</h1>
+            <div class="header-actions">
+                <button id="live-refresh-btn" class="sheet-link-btn" title="تحديث البيانات فوراً" style="border: 1px solid var(--primary); background: rgba(139, 92, 246, 0.1); cursor: pointer;">
+                    <i class='bx bx-refresh'></i>
+                </button>
+                <a href="https://docs.google.com/spreadsheets/d/1TfHwy5JcQNMVLzPkkIRQcl2Q_M40ctdQynB5y2yh30Q/edit" target="_blank" class="sheet-link-btn" title="فتح جدول ييانات Google Sheet">
+                    <i class='bx bx-spreadsheet'></i>
+                </a>
+                <div class="status-badge">
+                    <span class="pulse"></span>
+                    متصل بقاعدة البيانات
+                </div>
+            </div>
+        </header>
+
+        <div id="tabs-container" class="tabs-container hidden"></div>
+
+        <div class="controls glass-panel hidden" id="controls">
+            <div class="search-box">
+                <i class='bx bx-search'></i>
+                <input type="text" id="search-input" placeholder="ابحث عن المنتجات...">
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="view-toggles">
+                    <button id="view-list" class="view-btn active" title="عرض قائمة">
+                        <i class='bx bx-list-ul'></i>
+                    </button>
+                    <button id="view-grid" class="view-btn" title="عرض شبكي">
+                        <i class='bx bx-grid-alt'></i>
+                    </button>
+                </div>
+                <div class="stats" id="stats">
+                    0 منتجات
+                </div>
+            </div>
+        </div>
+
+        <section id="product-grid" class="product-grid list-view hidden">
+            <!-- Product cards will be injected here -->
+        </section>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>جاري جلب البيانات من Google Sheets...</p>
+        </div>
+
+        <!-- Empty / Error State -->
+        <div id="empty-state" class="empty-state hidden glass-panel">
+            <i class='bx bx-error-circle'></i>
+            <h2>لم يتم العثور على منتجات</h2>
+            <p>قد يكون جدول البيانات فارغاً أو حدث خطأ أثناء المزامنة.</p>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
