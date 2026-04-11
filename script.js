@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 banner.id = 'messy-sheet-banner';
                 banner.innerHTML = `<i class='bx bx-error-circle'></i> <strong>تنبيه دقيق:</strong> لم يتم العثور على أعمدة (اسم المنتج / وصف المنتج) في هذا القسم. سيتم عرض المنتجات ولكن <strong>لن يتم حفظ أي تعديلات</strong>. يرجى تصحيح أسماء الأعمدة في جوجل شيت!`;
                 banner.style.cssText = "background: #ffebee; color: #c62828; padding: 15px; text-align: center; font-weight: bold; margin: 20px; border-radius: 8px; border: 2px solid #ef9a9a; display: flex; align-items: center; justify-content: center; gap: 10px;";
-                document.querySelector('.search-bar').insertAdjacentElement('afterend', banner);
+                document.querySelector('#controls').insertAdjacentElement('afterend', banner);
             }
         } else if (existingBanner) {
             existingBanner.remove();
@@ -274,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (productsData.length === 0) {
             showEmptyState();
         } else {
+            emptyState.classList.add('hidden'); // CRITICAL: explicitly hide error overlay
             controls.classList.remove('hidden');
             productGrid.classList.remove('hidden');
             searchInput.value = '';
