@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const GOOGLE_SHEET_ID = "1TfHwy5JcQNMVLzPkkIRQcl2Q_M40ctdQynB5y2yh30Q";
     const SYNC_URL = "https://script.google.com/macros/s/AKfycbxZidSr37rM-p1-LEAM2Y15LNRqNZqY_YZ2BkPqhTCoMAC0DaRblG1hx8avyQPkfgX5/exec";
 
-    // Mapped Headers
-    const titleHeaders = ['product name', 'title', 'اسم المنتج', 'name', 'المنتج', 'العنوان'];
-    const descHeaders = ['product description', 'description', 'وصف المنتج', 'desc'];
+    // Mapped Headers (STRICT TO FORCE CLEAN SHEETS)
+    const titleHeaders = ['product name', 'اسم المنتج'];
+    const descHeaders = ['product description', 'وصف المنتج'];
     const linkHeaders = ['رابط الصورة', 'image link', 'drive link', 'link', 'url', 'google drive', 'صورة'];
 
     // Automatically load data on page open
