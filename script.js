@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SYNC_URL = "https://script.google.com/macros/s/AKfycbxZidSr37rM-p1-LEAM2Y15LNRqNZqY_YZ2BkPqhTCoMAC0DaRblG1hx8avyQPkfgX5/exec";
 
     // Mapped Headers
-    const titleHeaders = ['product name', 'title', 'اسم المنتج', 'name', 'المنتج'];
+    const titleHeaders = ['product name', 'title', 'اسم المنتج', 'name', 'المنتج', 'العنوان'];
     const descHeaders = ['product description', 'description', 'وصف المنتج', 'desc'];
     const linkHeaders = ['رابط الصورة', 'image link', 'drive link', 'link', 'url', 'google drive', 'صورة'];
 
@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const headers = Object.keys(rawJson[0]);
         let titleCol = '', descCol = '', linkCol = '';
+        let missingHeaders = false;
 
         headers.forEach(h => {
             const lowerH = h.toLowerCase().trim();
@@ -237,10 +238,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!linkCol && linkHeaders.includes(lowerH)) linkCol = h;
         });
 
+        // If strict headers were not found, banner warning
+        if (!titleCol || !descCol) {
+            missingHeaders = true;
+        }
+
         // Fallbacks
         if (!titleCol && headers.length > 0) titleCol = headers[0];
         if (!descCol && headers.length > 1) descCol = headers[1];
         if (!linkCol && headers.length > 2) linkCol = headers[2];
+
+        // UI WARNING
+        let existingBanner = document.getElementById('messy-sheet-banner');
+        if (missingHeaders) {
+            if (!existingBanner) {
+                const banner = document.createElement('div');
+                banner.id = 'messy-sheet-banner';
+                banner.innerHTML = `<i class='bx bx-error-circle'></i> <strong>تنبيه دقيق:</strong> لم يتم العثور على أعمدة (اسم المنتج / وصف المنتج) في هذا القسم. سيتم عرض المنتجات ولكن <strong>لن يتم حفظ أي تعديلات</strong>. يرجى تصحيح أسماء الأعمدة في جوجل شيت!`;
+                banner.style.cssText = "background: #ffebee; color: #c62828; padding: 15px; text-align: center; font-weight: bold; margin: 20px; border-radius: 8px; border: 2px solid #ef9a9a; display: flex; align-items: center; justify-content: center; gap: 10px;";
+                document.querySelector('.search-bar').insertAdjacentElement('afterend', banner);
+            }
+        } else if (existingBanner) {
+            existingBanner.remove();
+        }
 
         // Format data
         productsData = rawJson.map(row => ({
@@ -492,6 +512,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Debounce for 1 second of inactivity before saving
             autoSaveTimeouts[originalTitle] = setTimeout(() => {
+                // Block saving if headers are messy
+                if (document.getElementById('messy-sheet-banner')) {
+                    statusSpan.innerHTML = "<i class='bx bx-error'></i> خطأ في جدول البيانات!";
+                    statusSpan.style.color = '#dc2626'; // Red
+                    alert("لا يمكن الحفظ! يرجى إصلاح أسماء الأعمدة في Google Sheet أولاً.");
+                    return;
+                }
+                
                 statusSpan.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> جاري الحفظ...";
                 statusSpan.style.color = '#eab308'; // Yellow
 
