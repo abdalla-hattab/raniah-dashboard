@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let badgeHtml = '';
             
             if (isMessy) {
-                badgeHtml = `<span class="tab-badge" style="background: transparent; font-size: 1.1rem; padding: 0;">⚠️</span>`;
+                badgeHtml = `<span class="tab-badge" style="background: transparent; border: none; font-size: 1.1rem; padding: 0;">⚠️</span>`;
             } else {
                 badgeHtml = unchecked > 0 
                     ? `<span class="tab-badge">${unchecked}</span>` 
