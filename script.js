@@ -114,6 +114,19 @@ document.addEventListener('DOMContentLoaded', () => {
             let validProducts = 0;
             let checkedProducts = 0;
 
+            // Check if sheet is messy
+            let foundTitle = false;
+            let foundDesc = false;
+            if (rawJson.length > 0) {
+                const sheetHeaders = Object.keys(rawJson[0]);
+                sheetHeaders.forEach(h => {
+                    const lowerH = h.toLowerCase().trim();
+                    if (titleHeaders.includes(lowerH)) foundTitle = true;
+                    if (descHeaders.includes(lowerH)) foundDesc = true;
+                });
+            }
+            const isMessy = (rawJson.length > 0) && (!foundTitle || !foundDesc);
+
             rawJson.forEach(row => {
                 let ptitle = "";
                 let pimage = "";
@@ -131,9 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const unchecked = validProducts - checkedProducts;
-            const badgeHtml = unchecked > 0 
-                ? `<span class="tab-badge">${unchecked}</span>` 
-                : `<span class="tab-badge done"><i class='bx bx-check'></i></span>`;
+            let badgeHtml = '';
+            
+            if (isMessy) {
+                badgeHtml = `<span class="tab-badge" style="background: transparent; font-size: 1.1rem; padding: 0;">⚠️</span>`;
+            } else {
+                badgeHtml = unchecked > 0 
+                    ? `<span class="tab-badge">${unchecked}</span>` 
+                    : `<span class="tab-badge done"><i class='bx bx-check'></i></span>`;
+            }
+
 
             btn.innerHTML = `${sheetName} ${badgeHtml}`;
             
