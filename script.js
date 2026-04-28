@@ -14,6 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRawJson = [];
     window.globalWorkbook = null;
 
+    // Find and Replace State
+    const btnFindReplace = document.getElementById('btn-find-replace');
+    const findReplaceModal = document.getElementById('find-replace-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const findInput = document.getElementById('find-input');
+    const replaceInput = document.getElementById('replace-input');
+    const btnFindNext = document.getElementById('btn-find-next');
+    const btnFindAll = document.getElementById('btn-find-all');
+    const btnReplace = document.getElementById('btn-replace');
+    const btnReplaceAll = document.getElementById('btn-replace-all');
+    const findStatus = document.getElementById('find-status');
+
+    let findMatches = [];
+    let currentMatchIndex = -1;
+
     // View Toggles
     if (viewListBtn && viewGridBtn) {
         viewListBtn.addEventListener('click', () => {
@@ -584,5 +599,187 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         }
     });
+
+    // ==========================================
+    // FIND AND REPLACE LOGIC
+    // ==========================================
+    if (btnFindReplace && findReplaceModal) {
+        btnFindReplace.addEventListener('click', () => {
+            findReplaceModal.classList.remove('hidden');
+            findInput.focus();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            findReplaceModal.classList.add('hidden');
+            clearHighlights();
+        });
+
+        findReplaceModal.addEventListener('click', (e) => {
+            if (e.target === findReplaceModal) {
+                findReplaceModal.classList.add('hidden');
+                clearHighlights();
+            }
+        });
+        
+        function clearHighlights() {
+            document.querySelectorAll('.highlight-card').forEach(el => el.classList.remove('highlight-card'));
+        }
+        
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Safely replace only in text nodes to prevent breaking HTML
+        function replaceTextInElement(element, regex, replacement) {
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
+            while(walker.nextNode()) nodes.push(walker.currentNode);
+            
+            nodes.forEach(node => {
+                if (node.nodeValue.match(regex)) {
+                    node.nodeValue = node.nodeValue.replace(regex, replacement);
+                }
+            });
+        }
+
+        function performSearch() {
+            const query = findInput.value;
+            findMatches = [];
+            currentMatchIndex = -1;
+            
+            if (!query) {
+                findStatus.textContent = "أدخل نصاً للبحث";
+                clearHighlights();
+                return;
+            }
+
+            const regex = new RegExp(escapeRegExp(query), 'gi');
+
+            const cards = document.querySelectorAll('.product-card');
+            
+            cards.forEach((card) => {
+                const titleEl = card.querySelector('.editable-title');
+                const descEl = card.querySelector('.shopify-content');
+                
+                if (titleEl && titleEl.textContent.match(regex)) {
+                    findMatches.push({ card, type: 'title', element: titleEl });
+                }
+                
+                if (descEl && descEl.textContent.match(regex)) {
+                    findMatches.push({ card, type: 'desc', element: descEl });
+                }
+            });
+
+            if (findMatches.length > 0) {
+                findStatus.textContent = `تم العثور على ${findMatches.length} نتيجة`;
+                currentMatchIndex = 0;
+                highlightCurrentMatch();
+            } else {
+                findStatus.textContent = "لم يتم العثور على نتائج";
+                clearHighlights();
+            }
+        }
+
+        function highlightCurrentMatch() {
+            clearHighlights();
+            if (findMatches.length === 0 || currentMatchIndex < 0) return;
+            
+            const match = findMatches[currentMatchIndex];
+            match.card.classList.add('highlight-card');
+            match.card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            findStatus.textContent = `نتيجة ${currentMatchIndex + 1} من ${findMatches.length}`;
+        }
+
+        btnFindAll.addEventListener('click', performSearch);
+        
+        btnFindNext.addEventListener('click', () => {
+            if (findMatches.length === 0) {
+                performSearch();
+            } else {
+                currentMatchIndex = (currentMatchIndex + 1) % findMatches.length;
+                highlightCurrentMatch();
+            }
+        });
+
+        findInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (findMatches.length > 0 && findInput.value === findInput.dataset.lastQuery) {
+                    btnFindNext.click();
+                } else {
+                    findInput.dataset.lastQuery = findInput.value;
+                    performSearch();
+                }
+            }
+        });
+
+        function replaceCurrent() {
+            if (findMatches.length === 0 || currentMatchIndex < 0) return;
+            
+            const query = findInput.value;
+            const replacement = replaceInput.value;
+            if (!query) return;
+
+            const match = findMatches[currentMatchIndex];
+            const regex = new RegExp(escapeRegExp(query), 'gi');
+            
+            replaceTextInElement(match.element, regex, replacement);
+            
+            const inputEvent = new Event('input', { bubbles: true });
+            match.element.dispatchEvent(inputEvent);
+            
+            findMatches.splice(currentMatchIndex, 1);
+            
+            if (findMatches.length > 0) {
+                if (currentMatchIndex >= findMatches.length) currentMatchIndex = 0;
+                highlightCurrentMatch();
+            } else {
+                currentMatchIndex = -1;
+                findStatus.textContent = "لا يوجد المزيد من النتائج";
+                clearHighlights();
+            }
+        }
+
+        btnReplace.addEventListener('click', () => {
+            if (findMatches.length === 0) performSearch();
+            replaceCurrent();
+        });
+
+        btnReplaceAll.addEventListener('click', () => {
+            performSearch();
+            if (findMatches.length === 0) return;
+            
+            const query = findInput.value;
+            const replacement = replaceInput.value;
+            if (!query) return;
+            
+            const regex = new RegExp(escapeRegExp(query), 'gi');
+            const totalMatches = findMatches.length;
+            
+            findStatus.textContent = `جاري استبدال ${totalMatches} نتيجة...`;
+            
+            let i = 0;
+            function processNext() {
+                if (i >= findMatches.length) {
+                    findStatus.textContent = `تم استبدال ${totalMatches} بنجاح!`;
+                    findMatches = [];
+                    currentMatchIndex = -1;
+                    clearHighlights();
+                    return;
+                }
+                
+                const match = findMatches[i];
+                replaceTextInElement(match.element, regex, replacement);
+                
+                const inputEvent = new Event('input', { bubbles: true });
+                match.element.dispatchEvent(inputEvent);
+                
+                i++;
+                setTimeout(processNext, 50);
+            }
+            
+            processNext();
+        });
+    }
 
 });

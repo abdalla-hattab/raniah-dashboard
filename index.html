@@ -119,6 +119,10 @@
             </div>
             <div style="display: flex; align-items: center; gap: 20px;">
                 <div class="view-toggles">
+                    <button id="btn-find-replace" class="view-btn" title="بحث واستبدال">
+                        <i class='bx bx-replace'></i>
+                    </button>
+                    <div class="toolbar-divider" style="margin: 0 4px; height: 20px; background: rgba(255,255,255,0.1);"></div>
                     <button id="view-list" class="view-btn active" title="عرض قائمة">
                         <i class='bx bx-list-ul'></i>
                     </button>
@@ -128,6 +132,35 @@
                 </div>
                 <div class="stats" id="stats">
                     0 منتجات
+                </div>
+            </div>
+        </div>
+
+        <!-- Find and Replace Modal -->
+        <div id="find-replace-modal" class="modal-overlay hidden">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2><i class='bx bx-replace'></i> بحث واستبدال</h2>
+                    <button id="close-modal-btn" class="close-btn"><i class='bx bx-x'></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>البحث عن:</label>
+                        <input type="text" id="find-input" placeholder="النص المراد البحث عنه...">
+                    </div>
+                    <div class="input-group">
+                        <label>استبدال بـ:</label>
+                        <input type="text" id="replace-input" placeholder="النص الجديد...">
+                    </div>
+                    <div id="find-status" class="find-status">
+                        أدخل نصاً للبحث
+                    </div>
+                    <div class="modal-actions">
+                        <button id="btn-find-next" class="btn-secondary">بحث عن التالي</button>
+                        <button id="btn-find-all" class="btn-secondary">بحث عن الكل</button>
+                        <button id="btn-replace" class="btn-primary">استبدال</button>
+                        <button id="btn-replace-all" class="btn-primary">استبدال الكل</button>
+                    </div>
                 </div>
             </div>
         </div>
