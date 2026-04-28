@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('close-modal-btn');
     const findInput = document.getElementById('find-input');
     const replaceInput = document.getElementById('replace-input');
+    const btnFindPrev = document.getElementById('btn-find-prev');
     const btnFindNext = document.getElementById('btn-find-next');
     const btnFindAll = document.getElementById('btn-find-all');
     const btnReplace = document.getElementById('btn-replace');
@@ -701,6 +702,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         btnFindAll.addEventListener('click', performSearch);
+        
+        if(btnFindPrev) {
+            btnFindPrev.addEventListener('click', () => {
+                if (findMatches.length === 0) {
+                    performSearch();
+                } else {
+                    currentMatchIndex = (currentMatchIndex - 1 + findMatches.length) % findMatches.length;
+                    highlightCurrentMatch();
+                }
+            });
+        }
         
         btnFindNext.addEventListener('click', () => {
             if (findMatches.length === 0) {

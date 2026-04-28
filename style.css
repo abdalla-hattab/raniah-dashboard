@@ -848,7 +848,7 @@ header p {
     position: fixed;
     top: 100px; /* clear header */
     right: 40px; /* position over image */
-    width: 350px;
+    width: 600px;
     transform: none;
     margin: 0;
     padding: 0;
@@ -864,7 +864,27 @@ header p {
 
 .modal-content.docked .modal-body {
     padding: 1rem;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    align-items: start;
+}
+
+.modal-content.docked .find-status {
+    grid-column: 1 / -1;
+    margin: -5px 0;
+}
+
+.modal-content.docked .modal-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+}
+
+.modal-content.docked .modal-actions button {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
 }
 
 .modal-header {
