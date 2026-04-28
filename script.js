@@ -628,6 +628,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function clearHighlights() {
             document.querySelectorAll('.highlight-card').forEach(el => el.classList.remove('highlight-card'));
+            const sel = window.getSelection();
+            if (sel) sel.removeAllRanges();
         }
         
         function escapeRegExp(string) {
@@ -659,20 +661,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const regex = new RegExp(escapeRegExp(query), 'gi');
-
             const cards = document.querySelectorAll('.product-card');
             
             cards.forEach((card) => {
-                const titleEl = card.querySelector('.editable-title');
-                const descEl = card.querySelector('.shopify-content');
+                const elements = [card.querySelector('.editable-title'), card.querySelector('.shopify-content')];
                 
-                if (titleEl && titleEl.textContent.match(regex)) {
-                    findMatches.push({ card, type: 'title', element: titleEl });
-                }
-                
-                if (descEl && descEl.textContent.match(regex)) {
-                    findMatches.push({ card, type: 'desc', element: descEl });
-                }
+                elements.forEach(el => {
+                    if (!el) return;
+                    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    while(node = walker.nextNode()) {
+                        regex.lastIndex = 0;
+                        let match;
+                        while ((match = regex.exec(node.nodeValue)) !== null) {
+                            findMatches.push({
+                                card,
+                                element: el,
+                                node: node,
+                                startIndex: match.index,
+                                endIndex: match.index + match[0].length
+                            });
+                        }
+                    }
+                });
             });
 
             if (findMatches.length > 0) {
@@ -697,6 +708,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const match = findMatches[currentMatchIndex];
             match.card.classList.add('highlight-card');
             match.card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            try {
+                const range = document.createRange();
+                range.setStart(match.node, match.startIndex);
+                range.setEnd(match.node, match.endIndex);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) {
+                console.error("Selection error:", e);
+            }
             
             findStatus.textContent = `نتيجة ${currentMatchIndex + 1} من ${findMatches.length}`;
         }
@@ -737,18 +759,30 @@ document.addEventListener('DOMContentLoaded', () => {
         function replaceCurrent() {
             if (findMatches.length === 0 || currentMatchIndex < 0) return;
             
-            const query = findInput.value;
             const replacement = replaceInput.value;
-            if (!query) return;
-
             const match = findMatches[currentMatchIndex];
-            const regex = new RegExp(escapeRegExp(query), 'gi');
             
-            replaceTextInElement(match.element, regex, replacement);
+            const originalText = match.node.nodeValue;
+            if (originalText === null) {
+                // Node detached, resync
+                performSearch();
+                return;
+            }
+
+            const before = originalText.substring(0, match.startIndex);
+            const after = originalText.substring(match.endIndex);
+            match.node.nodeValue = before + replacement + after;
             
-            const inputEvent = new Event('input', { bubbles: true });
-            match.element.dispatchEvent(inputEvent);
+            // Adjust subsequent match offsets in the same text node
+            const lengthDiff = replacement.length - (match.endIndex - match.startIndex);
+            for (let i = currentMatchIndex + 1; i < findMatches.length; i++) {
+                if (findMatches[i].node === match.node) {
+                    findMatches[i].startIndex += lengthDiff;
+                    findMatches[i].endIndex += lengthDiff;
+                }
+            }
             
+            match.element.dispatchEvent(new Event('input', { bubbles: true }));
             findMatches.splice(currentMatchIndex, 1);
             
             if (findMatches.length > 0) {
@@ -775,13 +809,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!query) return;
             
             const regex = new RegExp(escapeRegExp(query), 'gi');
+            const uniqueElements = [...new Set(findMatches.map(m => m.element))];
             const totalMatches = findMatches.length;
             
             findStatus.textContent = `جاري استبدال ${totalMatches} نتيجة...`;
             
             let i = 0;
             function processNext() {
-                if (i >= findMatches.length) {
+                if (i >= uniqueElements.length) {
                     findStatus.textContent = `تم استبدال ${totalMatches} بنجاح!`;
                     findMatches = [];
                     currentMatchIndex = -1;
@@ -789,11 +824,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 
-                const match = findMatches[i];
-                replaceTextInElement(match.element, regex, replacement);
+                const el = uniqueElements[i];
+                replaceTextInElement(el, regex, replacement);
                 
                 const inputEvent = new Event('input', { bubbles: true });
-                match.element.dispatchEvent(inputEvent);
+                el.dispatchEvent(inputEvent);
                 
                 i++;
                 setTimeout(processNext, 50);
