@@ -815,9 +815,7 @@ header p {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none; /* Let clicks pass through */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -828,20 +826,45 @@ header p {
 
 .modal-overlay.hidden {
     opacity: 0;
-    pointer-events: none;
-    display: flex !important; /* Keep display flex for animation but ignore clicks */
+    display: flex !important;
 }
 
 .modal-content {
     width: 90%;
     max-width: 500px;
     padding: 0;
+    pointer-events: auto; /* Re-enable clicks for the modal */
     transform: translateY(0);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(15, 23, 42, 0.95); /* Make it slightly more opaque since no blur behind it */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
 }
 
 .modal-overlay.hidden .modal-content {
     transform: translateY(-50px);
+}
+
+.modal-content.docked {
+    position: fixed;
+    top: 100px; /* clear header */
+    right: 40px; /* position over image */
+    width: 350px;
+    transform: none;
+    margin: 0;
+    padding: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--primary);
+}
+
+.modal-content.docked .modal-header {
+    padding: 1rem;
+}
+
+.modal-content.docked .modal-body {
+    padding: 1rem;
+    gap: 1rem;
 }
 
 .modal-header {

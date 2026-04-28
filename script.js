@@ -604,6 +604,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // FIND AND REPLACE LOGIC
     // ==========================================
     if (btnFindReplace && findReplaceModal) {
+        const modalContent = findReplaceModal.querySelector('.modal-content');
+        
         btnFindReplace.addEventListener('click', () => {
             findReplaceModal.classList.remove('hidden');
             findInput.focus();
@@ -611,12 +613,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         closeModalBtn.addEventListener('click', () => {
             findReplaceModal.classList.add('hidden');
+            modalContent.classList.remove('docked');
             clearHighlights();
         });
 
         findReplaceModal.addEventListener('click', (e) => {
             if (e.target === findReplaceModal) {
                 findReplaceModal.classList.add('hidden');
+                modalContent.classList.remove('docked');
                 clearHighlights();
             }
         });
@@ -673,6 +677,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (findMatches.length > 0) {
                 findStatus.textContent = `تم العثور على ${findMatches.length} نتيجة`;
                 currentMatchIndex = 0;
+                
+                // Dock the modal to the right side so it doesn't block the view
+                const modalContent = findReplaceModal.querySelector('.modal-content');
+                modalContent.classList.add('docked');
+                
                 highlightCurrentMatch();
             } else {
                 findStatus.textContent = "لم يتم العثور على نتائج";
