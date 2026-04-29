@@ -359,8 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (fileId && (validLink.includes('drive.google.com') || validLink.includes('docs.google.com'))) {
                     isImage = true;
-                    // Use export=download as it works more reliably for Google Drive images
-                    displaySrc = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    displaySrc = `https://lh3.googleusercontent.com/d/${fileId}`;
+                    product.driveId = fileId; // Store for fallback
                 } else if (validLink.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                     isImage = true;
                 }
@@ -368,7 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let imageHtml = '';
             if (isImage) {
-                imageHtml = `<img src="${displaySrc}" alt="${escapeHTML(product.title)}" class="product-image" loading="lazy">`;
+                if (product.driveId) {
+                    imageHtml = `<img src="${displaySrc}" alt="${escapeHTML(product.title)}" class="product-image" loading="lazy" onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=${product.driveId}&sz=w1000';">`;
+                } else {
+                    imageHtml = `<img src="${displaySrc}" alt="${escapeHTML(product.title)}" class="product-image" loading="lazy">`;
+                }
             }
 
             let footerHtml = '';
