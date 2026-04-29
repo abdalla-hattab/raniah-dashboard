@@ -850,6 +850,7 @@ header p {
 
 .modal-overlay.hidden .modal-content {
     transform: translateY(-50px);
+    pointer-events: none;
 }
 
 .modal-content.docked {
