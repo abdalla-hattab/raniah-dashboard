@@ -359,7 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (fileId && (validLink.includes('drive.google.com') || validLink.includes('docs.google.com'))) {
                     isImage = true;
-                    displaySrc = `https://lh3.googleusercontent.com/d/${fileId}`;
+                    // Use export=download as it works more reliably for Google Drive images
+                    displaySrc = `https://drive.google.com/uc?export=download&id=${fileId}`;
                 } else if (validLink.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                     isImage = true;
                 }
