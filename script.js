@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const replaceInput = document.getElementById('replace-input');
     const btnFindPrev = document.getElementById('btn-find-prev');
     const btnFindNext = document.getElementById('btn-find-next');
-    const btnFindAll = document.getElementById('btn-find-all');
     const btnReplace = document.getElementById('btn-replace');
     const btnReplaceAll = document.getElementById('btn-replace-all');
     const findStatus = document.getElementById('find-status');
@@ -723,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
             findStatus.textContent = `نتيجة ${currentMatchIndex + 1} من ${findMatches.length}`;
         }
 
-        btnFindAll.addEventListener('click', performSearch);
+        
         
         if(btnFindPrev) {
             btnFindPrev.addEventListener('click', () => {
