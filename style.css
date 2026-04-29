@@ -645,6 +645,12 @@ header p {
     white-space: nowrap;
     transition: var(--transition);
     backdrop-filter: blur(var(--glass-blur));
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.tab-btn * {
+    pointer-events: none;
 }
 
 .tab-btn:hover {
