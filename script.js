@@ -712,9 +712,6 @@ document.addEventListener('DOMContentLoaded', () => {
             match.card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             try {
-                // Focus the element to force the browser to show the selection highlight natively
-                match.element.focus({ preventScroll: true });
-                
                 const range = document.createRange();
                 range.setStart(match.node, match.startIndex);
                 range.setEnd(match.node, match.endIndex);

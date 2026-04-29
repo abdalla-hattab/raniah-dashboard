@@ -995,6 +995,6 @@ header p {
 }
 
 ::highlight(search-result) {
-    background-color: #fde047; /* Yellow-300 */
-    color: #1e293b; /* Slate-800 */
+    background-color: #fde047 !important; /* Yellow-300 */
+    color: #1e293b !important; /* Slate-800 */
 }
