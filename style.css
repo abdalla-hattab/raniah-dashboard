@@ -619,6 +619,8 @@ header p {
     overflow-x: auto;
     scrollbar-width: thin;
     margin-bottom: -1rem;
+    position: relative;
+    z-index: 10;
 }
 
 .tabs-container::-webkit-scrollbar {
