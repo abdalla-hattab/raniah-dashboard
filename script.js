@@ -629,6 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.highlight-card').forEach(el => el.classList.remove('highlight-card'));
             const sel = window.getSelection();
             if (sel) sel.removeAllRanges();
+            if (window.CSS && CSS.highlights) {
+                CSS.highlights.clear();
+            }
         }
         
         function escapeRegExp(string) {
@@ -715,6 +718,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sel = window.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
+                
+                if (window.CSS && CSS.highlights) {
+                    const highlight = new Highlight(range);
+                    CSS.highlights.set("search-result", highlight);
+                }
             } catch (e) {
                 console.error("Selection error:", e);
             }

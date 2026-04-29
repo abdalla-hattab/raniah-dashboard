@@ -993,3 +993,8 @@ header p {
     transform: translateY(-5px);
     transition: all 0.3s ease;
 }
+
+::highlight(search-result) {
+    background-color: #fde047; /* Yellow-300 */
+    color: #1e293b; /* Slate-800 */
+}
